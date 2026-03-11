@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SpeedRun AI</title>
+
+<style>
+body{
+font-family: Arial;
+background:#f2f2f2;
+margin:0;
+padding:20px;
+text-align:center;
+}
+
+#chat{
+width:90%;
+max-width:600px;
+height:400px;
+background:white;
+margin:auto;
+padding:10px;
+overflow-y:auto;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+
+.message{
+margin:6px;
+padding:8px;
+border-radius:8px;
+max-width:75%;
+}
+
+.user{
+background:#cce5ff;
+margin-left:auto;
+}
+
+.ai{
+background:#e0e0e0;
+margin-right:auto;
+}
+
+#inputArea{
+margin-top:10px;
+}
+
+input{
+padding:10px;
+width:60%;
+font-size:16px;
+}
+
+button{
+padding:10px 15px;
+font-size:16px;
+background:#007bff;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>SpeedRun AI</h1>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+<input id="userInput" placeholder="Ask something..." />
+<button onclick="send()">Send</button>
+</div>
+
+<script>
+
+function send(){
+
+let input = document.getElementById("userInput").value;
+if(input=="") return;
+
+addMessage(input,"user");
+
+let reply = getResponse(input);
+
+addMessage(reply,"ai");
+
+document.getElementById("userInput").value="";
+
+}
+
+function addMessage(text,type){
+
+let msg = document.createElement("div");
+
+msg.className = "message " + type;
+
+msg.innerText = text;
+
+document.getElementById("chat").appendChild(msg);
+
+}
+
+function getResponse(text){
+
+text = text.toLowerCase();
+
+if(text=="hello" || text=="hi" || text=="hey"){
+return "Hello! I'm SpeedRun AI 🤖";
+}
+
+if(text=="who is einstein"){
+return "Albert Einstein was a famous physicist who created the theory of relativity.";
+}
+
+if(text=="capital of france"){
+return "The capital of France is Paris.";
+}
+
+if(text=="2+2"){
+return "The answer is 4.";
+}
+
+if(text=="9*5"){
+return "The answer is 45.";
+}
+
+return "I don't know that yet, but I'm still learning.";
+
+}
+
+</script>
+
+</body>
+</html>

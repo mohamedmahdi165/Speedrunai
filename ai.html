@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPad AI Browser</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #fafafa; }
+    #controls { padding: 10px; background: #f0f0f0; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+    #url { flex: 1; padding: 8px; min-width: 150px; border-radius: 5px; border: 1px solid #ccc; }
+    button { padding: 8px 12px; border: none; background-color: #007bff; color: white; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    #iframe { width: 100%; height: 40vh; border: none; margin-top: 5px; }
+    #ai-panel { padding: 10px; background: #e0e0e0; border-top: 2px solid #ccc; }
+    #ai-panel input { padding: 8px; width: 70%; margin-right: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    #ai-panel button { padding: 8px 12px; }
+    #ai-answer, #ai-image-result { margin-top: 10px; white-space: pre-wrap; max-width: 100%; }
+    #ai-image-result { display: block; }
+  </style>
+</head>
+<body>
+  <!-- Browser controls -->
+  <div id="controls">
+    <button onclick="goBack()">⬅ Back</button>
+    <button onclick="goForward()">➡ Forward</button>
+    <button onclick="reloadPage()">🔄 Reload</button>
+    <input type="text" id="url" placeholder="Enter URL or search" value="https://www.google.com">
+    <button onclick="navigate()">Go</button>
+  </div>
+  <iframe id="iframe" src="https://www.google.com"></iframe>
+
+  <!-- AI Panel -->
+  <div id="ai-panel">
+    <h3>Text AI</h3>
+    <input type="text" id="ai-question" placeholder="Ask AI something">
+    <button onclick="askAI()">Send</button>
+    <div id="ai-answer"></div>
+
+    <h3>Image AI</h3>
+    <input type="text" id="ai-image-prompt" placeholder="Describe an image">
+    <button onclick="generateImage()">Generate</button>
+    <img id="ai-image-result" alt="Generated image will appear here">
+  </div>
+
+  <script>
+    // Browser navigation
+    const iframe = document.getElementById('iframe');
+    const urlInput = document.getElementById('url');
+    const historyStack = [];
+    let historyIndex = -1;
+
+    function navigate() {
+      let input = urlInput.value.trim();
+      let url;
+      if(input.includes('.') && !input.includes(' ')) {
+        url = input.startsWith('http') ? input : 'https://' + input;
+      } else {
+        url = 'https://www.google.com/search?q=' + encodeURIComponent(input);
+      }
+      iframe.src = url;
+      historyStack.splice(historyIndex + 1);
+      historyStack.push(url);
+      historyIndex++;
+    }
+
+    function goBack() {
+      if(historyIndex > 0) {
+        historyIndex--;
+        iframe.src = historyStack[historyIndex];
+        urlInput.value = historyStack[historyIndex];
+      }
+    }
+
+    function goForward() {
+      if(historyIndex < historyStack.length - 1) {
+        historyIndex++;
+        iframe.src = historyStack[historyIndex];
+        urlInput.value = historyStack[historyIndex];
+      }
+    }
+
+    function reloadPage() {
+      iframe.src = iframe.src;
+    }
+
+    // AI text request
+    async function askAI() {
+      const question = document.getElementById("ai-question").value;
+      const answerDiv = document.getElementById("ai-answer");
+      answerDiv.textContent = "Loading...";
+      try {
+        const response = await fetch("https://YOUR_BACKEND_URL/text", {  // <-- replace with your backend URL
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({prompt: question})
+        });
+        const data = await response.json();
+        answerDiv.textContent = data.answer;
+      } catch(e) {
+        answerDiv.textContent = "Error connecting to AI backend";
+      }
+    }
+
+    // AI image request
+    async function generateImage() {
+      const prompt = document.getElementById("ai-image-prompt").value;
+      const imgEl = document.getElementById("ai-image-result");
+      imgEl.src = "";
+      try {
+        const response = await fetch("https://YOUR_BACKEND_URL/image", {  // <-- replace with your backend URL
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({prompt: prompt})
+        });
+        const data = await response.json();
+        imgEl.src = data.image_url;
+      } catch(e) {
+        imgEl.alt = "Error generating image";
+      }
+    }
+  </script>
+</body>
+</html>
